@@ -33,17 +33,23 @@ app.delete("/deleteUser", async (req, res) => {
   }
 });
 
-app.patch("/updateUser", async (req, res) => {
+app.patch("/updateUser/", async (req, res) => {
+  const  userId  = req.query.userId;
   const data = req.body;
 
+const validFields = ["firstName", "lastName", "gender","skills", "password", "age"]
   try {
-    const user = await User.findByIdAndUpdate({ _id: data.userId }, data, {
+    const keys = Object.keys(data).every(key => validFields.includes(key));
+    if(!keys){
+      throw new Error("Invalid fields");
+    }
+    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
       returnDocument: "after",
     });
     console.log(user);
     res.send("Updated data successfully");
   } catch (error) {
-    res.send(500).send("Something went wrong" + error);
+    res.status(400).send("Something went wrong" + error);
   }
 });
 
