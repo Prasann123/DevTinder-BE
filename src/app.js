@@ -3,6 +3,8 @@ const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
 const user = require("./models/user");
+const validateUser = require("../utils/validator");
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 
@@ -34,13 +36,20 @@ app.delete("/deleteUser", async (req, res) => {
 });
 
 app.patch("/updateUser/", async (req, res) => {
-  const  userId  = req.query.userId;
+  const userId = req.query.userId;
   const data = req.body;
 
-const validFields = ["firstName", "lastName", "gender","skills", "password", "age"]
+  const validFields = [
+    "firstName",
+    "lastName",
+    "gender",
+    "skills",
+    "password",
+    "age",
+  ];
   try {
-    const keys = Object.keys(data).every(key => validFields.includes(key));
-    if(!keys){
+    const keys = Object.keys(data).every((key) => validFields.includes(key));
+    if (!keys) {
       throw new Error("Invalid fields");
     }
     const user = await User.findByIdAndUpdate({ _id: userId }, data, {
@@ -54,26 +63,28 @@ const validFields = ["firstName", "lastName", "gender","skills", "password", "ag
 });
 
 app.post("/signup", async (req, res) => {
-  /* const user = new User({
-    firstName:"Prasanna",
-    lastName:"Kumar",
-    email:"prasanna@gmail.com",
-    password:"password",
-    age:20,
-    gender:"Male"
-}) */
-  const user = new User(req.body);
-  await user
-    .save()
-    .then((Result) => {
-      res.send({
-        message: "Data inserted successfully",
-        data: Result,
-      });
-    })
-    .catch((error) => {
-      res.status(500).send(error);
+  try {
+    validateUser(req.body);
+    const { age,gender,ImageUrl,skills, password, email, firstName, lastName } = req.body;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      age,
+      ImageUrl,
+      skills,
+      gender,
+      password: passwordHash,
     });
+    await user.save();
+
+    res.send("User Saved successfully");
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
 });
 
 connectDB()

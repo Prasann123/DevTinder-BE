@@ -50,14 +50,20 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     ImageUrl: {
-        type: String,
-        required: true,
-        validate: function (value) {
-          if (!validate.isURL(value)) {
-            throw new Error("URL is invalid");
-          }
+      type: String,
+
+      validate: {
+        validator: function (value) {
+          // Added options for URL validation
+          const options = {
+            protocols: ["http", "https"],
+            require_protocol: true,
+          };
+          return validate.isURL(value, options);
         },
-    }
+        message: (props) => `${props.value} is not a valid URL`,
+      },
+    },
   },
   { timestamps: true }
 );
