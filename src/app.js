@@ -1,12 +1,23 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
-const User = require("./models/user");
 const user = require("./models/user");
-const validateUser = require("../utils/validator");
-const bcrypt = require("bcrypt");
+
+
+const cookieparser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestsRouter = require("./routes/requests");
+
 
 app.use(express.json());
+app.use(cookieparser());
+
+
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestsRouter);
 
 app.get("/user", async (req, res) => {
   const userEmail = req.body.email;
@@ -62,30 +73,7 @@ app.patch("/updateUser/", async (req, res) => {
   }
 });
 
-app.post("/signup", async (req, res) => {
-  try {
-    validateUser(req.body);
-    const { age,gender,ImageUrl,skills, password, email, firstName, lastName } = req.body;
 
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const user = new User({
-      firstName,
-      lastName,
-      email,
-      age,
-      ImageUrl,
-      skills,
-      gender,
-      password: passwordHash,
-    });
-    await user.save();
-
-    res.send("User Saved successfully");
-  } catch (error) {
-    res.status(400).send(error.message);
-  }
-});
 
 connectDB()
   .then(() => {
