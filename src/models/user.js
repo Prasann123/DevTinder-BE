@@ -35,25 +35,25 @@ const userSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      required: true,
-      validate: function (value) {
+
+      /*       validate: function (value) {
         if (value < 18) {
           throw new Error("Age must be greater than 18");
         }
-      },
+      }, */
     },
     gender: {
       type: String,
-      required: true,
+
       enum: ["Male", "Female"],
     },
     skills: {
       type: [],
-      required: true,
     },
     ImageUrl: {
       type: String,
-
+      default:
+        "https://static.vecteezy.com/system/resources/previews/008/442/086/non_2x/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg",
       validate: {
         validator: function (value) {
           // Added options for URL validation
@@ -67,20 +67,15 @@ const userSchema = new mongoose.Schema(
       },
     },
   },
-  { timestamps: true 
-
-  }
-
-
+  { timestamps: true }
 );
 
 userSchema.methods.getJWTToken = async function () {
-  return jwt.sign({_id :this._id}, "Dev@Tinder$700",{expiresIn: "1h"});  
-      
-}
+  return jwt.sign({ _id: this._id }, "Dev@Tinder$700", { expiresIn: "1h" });
+};
 
-userSchema.methods.validatePassword = async function (password){
-  return  await bcrypt.compare(password, this.password);
-}
+userSchema.methods.validatePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
 module.exports = mongoose.model("User", userSchema);

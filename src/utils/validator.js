@@ -12,7 +12,7 @@ function validateUser(UserData) {
 
 
 const userUpdateValidation = (data) => {
-const validateFields = ["firstName", "lastName","email","gender","skills","age","ImageUrl"];
+const validateFields = ["firstName", "lastName","gender","skills","age","ImageUrl"];
 const keys = Object.keys(data).every((key) => validateFields.includes(key));
 
 if(!keys)

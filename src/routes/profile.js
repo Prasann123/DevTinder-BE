@@ -21,7 +21,7 @@ profileRouter.patch("/profile/update", userAuth, async (req, res) => {
     if (!userUpdateValidation(req.body)) {
       throw new Error("Invalid fields");
     }
-
+    console.log(req.body);
     Object.keys(req.body).forEach(
       (update) => (user[update] = req.body[update])
     );
